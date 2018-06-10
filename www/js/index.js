@@ -34,8 +34,6 @@ function initMapMarkers(map) {
 
                 detailsWindow = new google.maps.InfoWindow;
 
-                var j = i;
-
                 var spotDetailsString = "" +
                     " <div class=\"row text-center\">" +
                     "<div class=\"thumbnail\">" +
@@ -57,18 +55,11 @@ function initMapMarkers(map) {
                     animation: google.maps.Animation.DROP
                 });
                 bindInfoWindow(spotMarkers[marker[i].id], map, detailsWindow, spotDetailsString);
-
             }
         }, errorspotDB);
     });
 }
 
-function bindInfoWindow(spotMarker, map, infoWindow, html) {
-    google.maps.event.addListener(spotMarker, 'click', function() {
-        infoWindow.setContent(html);
-        infoWindow.open(map, spotMarker);
-    });
-}
 
 var app = {
     initialize: function() {
@@ -88,11 +79,9 @@ var app = {
 
         spotsDB.transaction(function(transaction) {
             transaction.executeSql('CREATE TABLE IF NOT EXISTS spots (id integer primary key, name text, description text, lat real, long real, image blob, user text, tag text)', [],
-
                 function(tx, result) {
                     console.log("Table 'spots' created successfully");
                 },
-
                 function(error) {
                     console.log("Error occurred while creating the table. " + error);
                 });
@@ -201,11 +190,11 @@ function saveData() {
     var name = document.getElementById("spotName").value;
     var description = document.getElementById("spotDescription").value;
     var latlong = spotMarker.position;
-    var imgSrc = img;
+    var imgBASE65 = img;
     var user = document.getElementById("spotUser").value;
     var tag = document.getElementById("spotTag").value;
 
-    var icon = new Icon(id, name, description, latlong.lat(), latlong.lng(), imgSrc, user, tag);
+    var icon = new Icon(id, name, description, latlong.lat(), latlong.lng(), imgBASE65, user, tag);
 
     spotsDB.transaction(function(tx) {
         var executeQuery = "INSERT INTO spots (name, description, lat, long, image, user, tag) VALUES (?,?,?,?,?,?,?)";
@@ -213,6 +202,13 @@ function saveData() {
     });
 
     spotMarker = null;
+}
+
+function bindInfoWindow(spotMarker, map, infoWindow, html) {
+    google.maps.event.addListener(spotMarker, 'click', function() {
+        infoWindow.setContent(html);
+        infoWindow.open(map, spotMarker);
+    });
 }
 
 function deleteRow(db) {
