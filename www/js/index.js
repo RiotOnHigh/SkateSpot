@@ -6,6 +6,8 @@ var destinationType;
 var detailsWindow;
 var spotMarkers = [];
 var marker = [];
+var newLatlng;
+var curc = 0;
 
 function initMapMarkers(map) {
     var markers = [];
@@ -85,10 +87,9 @@ var app = {
         pictureSource = navigator.camera.PictureSourceType;
         destinationType = navigator.camera.DestinationType;
 
-        //create a database to store the data
+
         spotsDB = window.openDatabase("spots", "1.0", "spots", 1000000);
 
-        //add a spots table
         spotsDB.transaction(function(transaction) {
             //transaction.executeSql('DROP TABLE IF EXISTS spots');
             transaction.executeSql('CREATE TABLE IF NOT EXISTS spots (id integer primary key, name text, description text, lat real, long real, image blob, user text, tag text)', [],
@@ -103,7 +104,8 @@ var app = {
         });
 
         //Get the user's current location
-        navigator.geolocation.getCurrentPosition(app.onSuccess, app.onError);
+        navigator.geolocation.getCurrentPosition(app.onSuccess, app.onError, {maximumAge:600000, timeout:5000, enableHighAccuracy: true});
+
     },
 
     onSuccess: function(position) {
@@ -171,20 +173,14 @@ var app = {
             "</div>"
         });
 
-        //listener for creating a marker when map is double clicked
-        google.maps.event.addListener(map, 'dblclick', function(event) {
 
-            //create a marker
+        google.maps.event.addListener(map, 'dblclick', function(event) {
             spotMarker = new google.maps.Marker({
                 position: event.latLng,
                 icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
                 map: map,
             });
-
-            //listener for clicking the marker that was just created
-            google.maps.event.addListener(spotMarker, 'click', function() {
-                infowindow.open(map, spotMarker);
-            });
+            infowindow.open(map, spotMarker);
         });
 
         //add markers to the map from storage
