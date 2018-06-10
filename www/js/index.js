@@ -5,11 +5,11 @@ var pictureSource;
 var destinationType;
 var detailsWindow;
 var spotMarkers = [];
-var tempIcons = [];
+var marker = [];
 
 function initMapMarkers(map) {
-    var icons = [];
-    icons = tempIcons;
+    var markers = [];
+    marker = marker;
 
     spotsDB.transaction(function(transaction) {
         transaction.executeSql('SELECT * FROM spots', [], function(tx, results) {
@@ -27,10 +27,10 @@ function initMapMarkers(map) {
                 var tag = results.rows.item(i).tag;
 
                 var icon = new Icon(id, name, description, lat, long, image, user, tag);
-                tempIcons.push(icon);
+                marker.push(icon);
             }
 
-            for (var i in tempIcons) {
+            for (var i in marker) {
 
                 detailsWindow = new google.maps.InfoWindow;
 
@@ -39,24 +39,24 @@ function initMapMarkers(map) {
                 var spotDetailsString = "" +
                     " <div class=\"row text-center\">" +
                     "<div class=\"thumbnail\">" +
-                    " <strong><h3>" + tempIcons[i].name + "</h3></strong>" +
-                    " <img src='" + tempIcons[i].img + "' alt='img' width='200px' height='120px'/>" +
-                    " <p>Description: " + tempIcons[i].description + "</p>" +
-                    " <p>User: " + tempIcons[i].user + "</p>" +
-                    " <p>Tag: " + tempIcons[i].tag + "</p>" +
-                    "<div class=\"form-group\"><input type='button' value='Delete' onclick='deleteRow("+tempIcons[i].id+")' class='btn btn-primary btn-block'/>" +
+                    " <strong><h3>" + marker[i].name + "</h3></strong>" +
+                    " <img src='" + marker[i].img + "' alt='img' width='200px' height='120px'/>" +
+                    " <p>Description: " + marker[i].description + "</p>" +
+                    " <p>User: " + marker[i].user + "</p>" +
+                    " <p>Tag: " + marker[i].tag + "</p>" +
+                    "<div class=\"form-group\"><input type='button' value='Delete' onclick='deleteRow("+marker[i].id+")' class='btn btn-primary btn-block'/>" +
                     "</div>" +
                     " </div>";
 
-                var latLong = new google.maps.LatLng(tempIcons[i].lat, tempIcons[i].lng);
+                var latLong = new google.maps.LatLng(marker[i].lat, marker[i].lng);
 
-                spotMarkers[tempIcons[i].id] = new google.maps.Marker({
+                spotMarkers[marker[i].id] = new google.maps.Marker({
                     position: latLong,
                     map: map,
                     icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
                     animation: google.maps.Animation.DROP
                 });
-                bindInfoWindow(spotMarkers[tempIcons[i].id], map, detailsWindow, spotDetailsString);
+                bindInfoWindow(spotMarkers[marker[i].id], map, detailsWindow, spotDetailsString);
 
             }
         }, errorspotDB);
@@ -207,16 +207,7 @@ function Icon(id, name, description, lat, lng, img, user, tag) {
     this.tag = tag;
 }
 
-function validate() {
-
-
-
-}
-
 function saveData() {
-    var icons = [];
-
-    //set up a new Icon
     var id = null;
     var name = document.getElementById("spotName").value;
     var description = document.getElementById("spotDescription").value;
