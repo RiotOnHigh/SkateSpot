@@ -6,8 +6,6 @@ var destinationType;
 var detailsWindow;
 var spotMarkers = [];
 var marker = [];
-var newLatlng;
-var curc = 0;
 
 function initMapMarkers(map) {
     var markers = [];
@@ -73,7 +71,6 @@ function bindInfoWindow(spotMarker, map, infoWindow, html) {
 }
 
 var app = {
-    // Application Constructor
     initialize: function() {
         this.bindEvents();
     },
@@ -87,11 +84,9 @@ var app = {
         pictureSource = navigator.camera.PictureSourceType;
         destinationType = navigator.camera.DestinationType;
 
-
         spotsDB = window.openDatabase("spots", "1.0", "spots", 1000000);
 
         spotsDB.transaction(function(transaction) {
-            //transaction.executeSql('DROP TABLE IF EXISTS spots');
             transaction.executeSql('CREATE TABLE IF NOT EXISTS spots (id integer primary key, name text, description text, lat real, long real, image blob, user text, tag text)', [],
 
                 function(tx, result) {
@@ -102,10 +97,7 @@ var app = {
                     console.log("Error occurred while creating the table. " + error);
                 });
         });
-
-        //Get the user's current location
-        navigator.geolocation.getCurrentPosition(app.onSuccess, app.onError, {maximumAge:600000, timeout:5000, enableHighAccuracy: true});
-
+        navigator.geolocation.getCurrentPosition(app.onSuccess, app.onError);
     },
 
     onSuccess: function(position) {
@@ -173,17 +165,18 @@ var app = {
             "</div>"
         });
 
-
         google.maps.event.addListener(map, 'dblclick', function(event) {
+
             spotMarker = new google.maps.Marker({
                 position: event.latLng,
                 icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
                 map: map,
             });
-            infowindow.open(map, spotMarker);
+            google.maps.event.addListener(spotMarker, 'click', function() {
+                infowindow.open(map, spotMarker);
+            });
         });
 
-        //add markers to the map from storage
         initMapMarkers(map);
     },
 
